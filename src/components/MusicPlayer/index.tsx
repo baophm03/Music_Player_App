@@ -1,31 +1,29 @@
 import React, { useContext, useEffect, useState, useRef } from 'react';
-import TrackPlayer, { State, Event, useTrackPlayerEvents, useProgress } from 'react-native-track-player';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
-import tracks from '../components/tracks';
-import FavoriteTracksContext from './FavoriteTracksContext'; // Import context
+import TrackPlayer, { State, Event, useTrackPlayerEvents, useProgress, Capability } from 'react-native-track-player';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Animated, Easing } from 'react-native';
+import tracks from '../tracks';
+import FavoriteTracksContext from '../FavoriteTracksContext'; // Import context
 
-TrackPlayer.updateOptions({
-  stopWithApp: false,
-  capabilities: [TrackPlayer.CAPABILITY_PLAY, TrackPlayer.CAPABILITY_PAUSE],
-  compactCapabilities: [
-    TrackPlayer.CAPABILITY_PLAY,
-    TrackPlayer.CAPABILITY_PAUSE,
-  ],
-});
+interface Track {
+  id: string;
+  title: string;
+  artist: string;
+  artwork: any;
+  url: any;
+}
 
 const MusicPlayer = () => {
 
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState(null);
+  const [isPlaying, setIsPlaying] = useState<boolean>(false);
+  const [currentTrack, setCurrentTrack] = useState<Track | null>(null);
   const spinValue = useRef(new Animated.Value(0)).current;
-  const [isFavorited, setIsFavorited] = useState(false);
+  const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const { favoriteTracks, setFavoriteTracks } = useContext(FavoriteTracksContext);
 
 
   const setUpTrackPlayer = async () => {
     await TrackPlayer.setupPlayer();
     await TrackPlayer.add(tracks);
-
   };
   useEffect(() => {
     if (currentTrack && Array.isArray(favoriteTracks)) {
@@ -35,25 +33,21 @@ const MusicPlayer = () => {
 
   useEffect(() => {
     const initializePlayer = async () => {
-      await setUpTrackPlayer(); // Đợi khởi tạo xong
+      await setUpTrackPlayer();
       startRotation();
-
     };
 
     initializePlayer();
-
-    return () => TrackPlayer.destroy();
   }, []);
 
   useTrackPlayerEvents([Event.PlaybackTrackChanged], async (event) => {
-
     if (event.type === Event.PlaybackTrackChanged && event.nextTrack != null) {
       const track = await TrackPlayer.getTrack(event.nextTrack);
-      setCurrentTrack(track);
+      setCurrentTrack(track as Track);
     }
   });
 
-  //hàm dừng phát nhạc khi bấm pause/play
+  // dừng phát nhạc khi bấm pause/play
   const togglePlayPause = async () => {
     const currentState = await TrackPlayer.getState();
     if (currentState === State.Playing) {
@@ -65,19 +59,17 @@ const MusicPlayer = () => {
     }
   };
 
-  // Hàm làm ảnh xoay 360 độ
+  // rotate ảnh bìa khi phát nhạc
   const startRotation = () => {
     Animated.loop(
       Animated.timing(spinValue, {
         toValue: 1,
         duration: 25000,
-        easing: linearEasing,
+        easing: Easing.linear,
         useNativeDriver: false,
       })
     ).start();
   };
-
-  const linearEasing = (value) => value;
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
@@ -85,9 +77,9 @@ const MusicPlayer = () => {
   });
 
   // Hàm chuyển đổi thời gian từ giây sang định dạng "hh:mm:ss"
-  function secondsToMMSS(seconds) {
+  function secondsToMMSS(seconds: number): string {
     const minutes = Math.floor((seconds % 3600) / 60);
-    const remainingSeconds = seconds % 60;
+    const remainingSeconds = Math.floor(seconds % 60);
 
     const formattedMinutes = String(minutes).padStart(2, '0');
     const formattedSeconds = String(remainingSeconds).padStart(2, '0');
@@ -99,7 +91,7 @@ const MusicPlayer = () => {
   const time1 = roundNumber(time.position);
   const time2 = roundNumber(time.duration);
 
-  function roundNumber(number) {
+  function roundNumber(number: number): number {
     return number % 1 < 0.5 ? Math.floor(number) : Math.ceil(number);
   }
 
@@ -107,6 +99,8 @@ const MusicPlayer = () => {
   const thoigianketthuc = secondsToMMSS(time2);
 
   const handleToggleFavorite = () => {
+    if (!currentTrack) return;
+
     if (isFavorited) {
       // Nếu bài hát đã được yêu thích, xóa khỏi danh sách
       setFavoriteTracks(favoriteTracks.filter(trackId => trackId !== currentTrack.id));
@@ -114,7 +108,7 @@ const MusicPlayer = () => {
       // Nếu bài hát chưa được yêu thích, thêm vào danh sách
       setFavoriteTracks([...favoriteTracks, currentTrack.id]);
     }
-    setIsFavorited(!isFavorited); // Đảo ngược trạng thái yêu thích
+    setIsFavorited(!isFavorited);
   };
 
   return (
@@ -132,8 +126,8 @@ const MusicPlayer = () => {
       <View style={styles.barthongtinbaihat}>
         <TouchableOpacity>
           <Image
-            style={{ width: 20, height: 20 }} // Tùy chỉnh kích thước của icon
-            source={require('../assets/Images/share.png')} // Đường dẫn đến icon trong thiết bị của bạn
+            style={{ width: 20, height: 20 }}
+            source={require('../../../assets/image/share.png')}
           />
         </TouchableOpacity>
 
@@ -148,8 +142,8 @@ const MusicPlayer = () => {
 
         <TouchableOpacity onPress={handleToggleFavorite}>
           <Image
-            style={{ width: 20, height: 20 }} // Tùy chỉnh kích thước của icon
-            source={isFavorited ? require('../assets/Images/heart2.png') : require('../assets/Images/heart.png')} />
+            style={{ width: 20, height: 20 }}
+            source={isFavorited ? require('../../../assets/image/heart2.png') : require('../../../assets/image/heart.png')} />
         </TouchableOpacity>
       </View>
 
@@ -171,22 +165,22 @@ const MusicPlayer = () => {
       <View style={styles.thanhchucnang}>
         <TouchableOpacity style={{ padding: 20 }} onPress={() => TrackPlayer.skipToPrevious()}>
           <Image
-            style={{ width: 30, height: 30 }} // Tùy chỉnh kích thước của icon
-            source={require('../assets/Images/Previous.png')} // Đường dẫn đến icon trong thiết bị của bạn
+            style={{ width: 30, height: 30 }}
+            source={require('../../../assets/image/previous.png')}
           />
         </TouchableOpacity>
 
         <TouchableOpacity style={{ padding: 30 }} onPress={togglePlayPause}>
           <Image
-            style={{ width: 60, height: 60 }} // Tùy chỉnh kích thước của icon
-            source={isPlaying ? require('../assets/Images/pause.png') : require('../assets/Images/play.png')} // Đường dẫn đến icon trong thiết bị của bạn
+            style={{ width: 60, height: 60 }}
+            source={isPlaying ? require('../../../assets/image/pause.png') : require('../../../assets/image/play.png')}
           />
         </TouchableOpacity>
 
         <TouchableOpacity style={{ padding: 20 }} onPress={() => TrackPlayer.skipToNext()}>
           <Image
-            style={{ width: 30, height: 30 }} // Tùy chỉnh kích thước của icon
-            source={require('../assets/Images/next.png')} // Đường dẫn đến icon trong thiết bị của bạn
+            style={{ width: 30, height: 30 }}
+            source={require('../../../assets/image/next.png')}
           />
         </TouchableOpacity>
       </View>
@@ -198,7 +192,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: 'white',
     backgroundColor: 'rgba(1, 1, 1, 0.2)',
   },
 
@@ -220,6 +213,12 @@ const styles = StyleSheet.create({
   thongtinbaihat: {
     alignItems: 'center',
     textAlign: 'center',
+  },
+
+  khungthoigian: {
+    alignItems: 'center',
+    width: '100%',
+    paddingVertical: 20,
   },
 
   thanhthoigian: {

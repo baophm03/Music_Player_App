@@ -1,41 +1,19 @@
-## Start 
-- Chạy các lệnh sau trước khi bắt đầu
-    ```
-    npm install
-    ```
-- Cài PlayerTracker
-    ```
-    npm install --save react-native-track-player
-    ```
-- Cài Navigation
-    npm install @react-navigation/native
-    ```
-    npm install @react-navigation/bottom-tabs
-    ```
-- 
-    npm install react-native-image-colors
+# Step 1: Install node_module
+```
+npm install
+```
 
-## Build
-Với react-native cli:
-- Tạo project
-    ```
-    npx react-native@latest init 'TÊN DỰ ÁN'
-    ```
-- Chạy lần đầu
-    ```
-    npx react-native run-android
-    ```
-- Các lần chạy sau
-    ```
-    npm start
-    ```
---------------------------------------------
-Với react-native expo:
-- Tạo project:
-    ```
-    npx create-expo-app 'TÊN DỰ ÁN'
-    ```
-- Chạy app:
-    ```
-    npm start
-    ```
+# Step 2: Run metro
+```
+npm start
+```
+
+# Step 3: Run with devices
+Android: 
+```
+npm run android
+```
+iOS: 
+```
+npm run ios
+```

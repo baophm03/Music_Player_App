@@ -1,24 +1,35 @@
-import React, { useContext, useEffect, useState, useRef } from 'react';
+import React, { useContext } from 'react';
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
-import tracks from './tracks';
-import FavoriteTracksContext from './FavoriteTracksContext';
+import tracks from '../tracks';
+import FavoriteTracksContext from '../FavoriteTracksContext';
 
-const TrackFavorite = ({ navigation }) => {
+interface TrackItem {
+  id: string;
+  title: string;
+  artist: string;
+  artwork: any;
+}
+
+interface TrackFavoriteProps {
+  navigation: any;
+}
+
+const TrackFavorite = ({ navigation }: TrackFavoriteProps) => {
   const { favoriteTracks } = useContext(FavoriteTracksContext);
   const filteredTracks = favoriteTracks
-    ? tracks.filter(track => favoriteTracks.includes(track.id))
+    ? tracks.filter((track: TrackItem) => favoriteTracks.includes(track.id))
     : [];
-  const playTrack = async (trackId) => { 
+  const playTrack = async (trackId: string) => {
     // Chuyển đổi trackId sang kiểu số
     const parsedTrackId = parseInt(trackId, 10);
-    
+
     // Nhảy đến bài hát được chọn
-    await TrackPlayer.skip(parsedTrackId); 
+    await TrackPlayer.skip(parsedTrackId);
     navigation.navigate('Music Player');
   };
 
-  const renderItem = ({ item, index }) => {
+  const renderItem = ({ item, index }: { item: TrackItem; index: number }) => {
     return (
       <TouchableOpacity style={styles.trackItem} onPress={() => playTrack(item.id)}>
         <Text style={styles.stt}>{index + 1}</Text>

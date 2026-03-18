@@ -1,29 +1,40 @@
 import { View, Text, FlatList, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
-import tracks from './tracks';
-import SearchBar from './SearchBar'; // Import SearchBar
+import tracks from '../tracks';
+// import SearchBar from './SearchBar';
 import React, { useState } from 'react'; // Import useState
 
-const TrackListAll = ({ navigation }) => {
-    const [searchTerm, setSearchTerm] = useState('');
+interface TrackItem {
+    id: string;
+    title: string;
+    artist: string;
+    artwork: any;
+}
 
-  const handleSearch = (text) => {
-    setSearchTerm(text);
-  };
+interface TrackListAllProps {
+    navigation: any;
+}
 
-  const filteredTracks = searchTerm
-  ? tracks.filter(track => 
-      track.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      track.artist.toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  : tracks;
-    const playTrack = async (trackId) => {
+const TrackListAll = ({ navigation }: TrackListAllProps) => {
+    const [searchTerm, setSearchTerm] = useState<string>('');
+
+    const handleSearch = (text: string) => {
+        setSearchTerm(text);
+    };
+
+    const filteredTracks = searchTerm
+        ? tracks.filter((track: TrackItem) =>
+            track.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            track.artist.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        : tracks;
+    const playTrack = async (trackId: string) => {
         const parsedTrackId = parseInt(trackId, 10);
         // Nhảy đến bài hát được chọn
         await TrackPlayer.skip(parsedTrackId);
         navigation.navigate('Music Player');
     };
-    const renderItem = ({ item, index }) => {
+    const renderItem = ({ item, index }: { item: TrackItem; index: number }) => {
         return (
             <TouchableOpacity style={styles.trackItem} onPress={() => playTrack(item.id)}>
                 <Text style={styles.stt}>{index + 1}</Text>
@@ -38,7 +49,7 @@ const TrackListAll = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-        <SearchBar onSearch={handleSearch} />
+            {/* <SearchBar onSearch={handleSearch} /> */}
             <FlatList
                 data={filteredTracks}
                 renderItem={renderItem}
