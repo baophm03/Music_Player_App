@@ -17,3 +17,9 @@ iOS:
 ```
 npm run ios
 ```
+
+# If error gradlew - Clean cache gradlew
+```
+cd android
+gradlew clean
+```

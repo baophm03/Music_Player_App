@@ -19,7 +19,7 @@ const App = () => {
               tabBarIcon: ({ focused, color, size }) => {
                 let iconName;
 
-                if (route.name === 'Music Player') {
+                if (route.name === 'Home') {
                   iconName = focused
                     ? require('./assets/image/home.png')
                     : require('./assets/image/home.png');
@@ -36,7 +36,7 @@ const App = () => {
               tabBarInactiveTintColor: 'gray',
             })}
           >
-            <Tab.Screen name="Music Player" component={MusicPlayer} />
+            <Tab.Screen name="Home" component={MusicPlayer} />
             <Tab.Screen name="Danh Sách" component={TrackList} />
           </Tab.Navigator>
         </NavigationContainer>
